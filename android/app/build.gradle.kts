@@ -25,6 +25,26 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "client"
+
+    productFlavors {
+        create("clientA") {
+            dimension = "client"
+            applicationIdSuffix = ".clienta"
+            versionNameSuffix = "-clienta"
+        }
+        create("clientB") {
+            dimension = "client"
+            applicationIdSuffix = ".clientb"
+            versionNameSuffix = "-clientb"
+        }
+        create("clientC") {
+            dimension = "client"
+            applicationIdSuffix = ".clientc"
+            versionNameSuffix = "-clientc"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
