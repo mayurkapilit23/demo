@@ -1,0 +1,73 @@
+name: Deploy Flutter App
+
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: "Select Flutter Flavor"
+        required: true
+        type: choice
+        options:
+          - clientA
+          - clientB
+          - clientC
+
+      track:
+        description: "Select Play Store Track"
+        required: true
+        type: choice
+        options:
+          - internal
+          - closed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Show Selected Options
+        run: |
+          echo "Flavor : ${{ github.event.inputs.flavor }}"
+          echo "Track  : ${{ github.event.inputs.track }}"
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+#      - name: Analyze Project
+#        run: flutter analyze
+
+#      - name: Run Tests
+#        run: flutter test
+
+      - name: Build Selected Flavor
+        run: |
+          # Since you're using debug signing in build.gradle, this will work without extra secrets
+          flutter build appbundle --release \
+            --flavor ${{ github.event.inputs.flavor }} \
+            -t lib/main_${{ github.event.inputs.flavor }}.dart
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.flavor }}-aab
+          path: build/app/outputs/bundle/**/*.aab
+
+      - name: Build Summary
+        run: |
+          echo "Build process completed successfully."
+          echo "Artifact for ${{ github.event.inputs.flavor }} is ready."
