@@ -20,6 +20,7 @@ on:
           - clientA
           - clientB
           - clientC
+          - clientD
 
       # 'track' is another custom identifier for deployment selection
       track:
