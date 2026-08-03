@@ -43,6 +43,41 @@ android {
             applicationIdSuffix = ".clientc"
             versionNameSuffix = "-clientc"
         }
+        create("clientD") {
+            dimension = "client"
+            applicationIdSuffix = ".clientd"
+            versionNameSuffix = "-clientd"
+        }
+        create("clientE") {
+            dimension = "client"
+            applicationIdSuffix = ".cliente"
+            versionNameSuffix = "-cliente"
+        }
+        create("clientF") {
+            dimension = "client"
+            applicationIdSuffix = ".clientf"
+            versionNameSuffix = "-clientf"
+        }
+        create("clientG") {
+            dimension = "client"
+            applicationIdSuffix = ".clientg"
+            versionNameSuffix = "-clientg"
+        }
+        create("clientH") {
+            dimension = "client"
+            applicationIdSuffix = ".clienth"
+            versionNameSuffix = "-clienth"
+        }
+        create("clientI") {
+            dimension = "client"
+            applicationIdSuffix = ".clienti"
+            versionNameSuffix = "-clienti"
+        }
+        create("clientJ") {
+            dimension = "client"
+            applicationIdSuffix = ".clientj"
+            versionNameSuffix = "-clientj"
+        }
     }
 
     buildTypes {

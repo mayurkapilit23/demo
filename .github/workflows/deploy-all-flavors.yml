@@ -1,0 +1,71 @@
+name: Deploy All Flavors (Simultaneous)
+
+on:
+  workflow_dispatch:
+    # No inputs needed because the matrix defines all flavors to build
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # The 'strategy' block allows running multiple instances of the job in parallel
+    strategy:
+      # If one flavor fails, 'fail-fast: false' ensures other flavors continue building
+      fail-fast: false
+      matrix:
+        # Define all your 10+ flavors here in this list
+        flavor:
+          - clientA
+          - clientB
+          - clientC
+          - clientD
+          - clientE
+          - clientF
+          - clientG
+          - clientH
+          - clientI
+          - clientJ
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build App Bundle
+        run: |
+          # Uses ${{ matrix.flavor }} to build each variant in parallel
+          flutter build appbundle --release \
+            --flavor ${{ matrix.flavor }} \
+            -t lib/main_${{ matrix.flavor }}.dart
+
+      # Step to upload the generated bundle for internal testing (Commented out)
+      # Note: You must set up a Google Play Service Account and add the JSON to GitHub Secrets
+      # - name: Upload to Play Store (Internal Testing)
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlain: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+      #     # Package name usually follows a pattern with the flavor name
+      #     packageName: com.demoapp.${{ matrix.flavor }} 
+      #     releaseFiles: build/app/outputs/bundle/${{ matrix.flavor }}Release/*.aab
+      #     track: internal
+      #     status: completed
+
+      - name: Upload Build Artifact (Backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.flavor }}-aab
+          path: build/app/outputs/bundle/**/*.aab

@@ -1,17 +1,27 @@
+# 'name' defines the title of the workflow displayed in the GitHub Actions tab
 name: Deploy Flutter App
 
+# 'on' specifies the events that trigger the workflow
 on:
+  # 'workflow_dispatch' enables manual triggering of the workflow from the GitHub UI
   workflow_dispatch:
+    # 'inputs' defines the parameters users provide when triggering manually
     inputs:
+      # 'flavor' is a custom identifier for the input variable (referenced as github.event.inputs.flavor)
       flavor:
+        # 'description' is the label shown to the user in the UI
         description: "Select Flutter Flavor"
+        # 'required' makes the input mandatory before running (true/false)
         required: true
+        # 'type' determines the UI element (choice = dropdown, string = text box, boolean = checkbox)
         type: choice
+        # 'options' provides the list of values for the 'choice' dropdown
         options:
           - clientA
           - clientB
           - clientC
 
+      # 'track' is another custom identifier for deployment selection
       track:
         description: "Select Play Store Track"
         required: true
@@ -20,34 +30,47 @@ on:
           - internal
           - closed
 
+# 'jobs' groups together all the tasks that run in the workflow
 jobs:
+  # 'deploy' is the unique ID for this specific job
   deploy:
+    # 'runs-on' specifies the type of virtual machine/runner to use (e.g., ubuntu-latest)
     runs-on: ubuntu-latest
 
+    # 'steps' is a sequence of individual tasks executed in order
     steps:
+      # 'name' is a descriptive label for the step shown in logs
       - name: Show Selected Options
+        # 'run' executes shell commands on the runner's terminal
+        # Syntax Breakdown:
+        # '${{ ... }}' -> Tells GitHub to evaluate the content as an expression
+        # 'github.event.inputs' -> Accesses the manual inputs provided during trigger
+        # '.flavor' -> Refers to the specific input ID defined above
         run: |
           echo "Flavor : ${{ github.event.inputs.flavor }}"
           echo "Track  : ${{ github.event.inputs.track }}"
 
       - name: Checkout Source Code
+        # 'uses' runs a specific GitHub Action (reusable code from a repo)
         uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
+        # 'with' passes input parameters required by the 'uses' action
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: temurin # Specific JDK distribution
+          java-version: 17      # Version of Java to install
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.44.4"
-          cache: true
+          flutter-version: "3.44.4" # Version of Flutter to install
+          cache: true               # Enables caching of SDK for faster future builds
 
       - name: Install Dependencies
         run: flutter pub get
 
+      # Optional steps currently disabled using '#'
 #      - name: Analyze Project
 #        run: flutter analyze
 
@@ -56,7 +79,8 @@ jobs:
 
       - name: Build Selected Flavor
         run: |
-          # Since you're using debug signing in build.gradle, this will work without extra secrets
+          # The multi-line command to build the Android App Bundle
+          # uses the 'flavor' input for both the build command and the entry file path
           flutter build appbundle --release \
             --flavor ${{ github.event.inputs.flavor }} \
             -t lib/main_${{ github.event.inputs.flavor }}.dart
@@ -64,7 +88,9 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
+          # 'name' sets the filename for the downloaded zip artifact
           name: ${{ github.event.inputs.flavor }}-aab
+          # 'path' tells GitHub which local files to include in the artifact
           path: build/app/outputs/bundle/**/*.aab
 
       - name: Build Summary
